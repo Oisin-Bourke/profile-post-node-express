@@ -22,6 +22,7 @@ export async function connectToDatabase() {
 		process.env.MONGO_DB_COLLECTION_NAME || ""
 	)
     
+	// Persisted connection to collections
     collections.posts = postsCollection
 
 	console.log(
