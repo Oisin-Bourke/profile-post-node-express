@@ -1,12 +1,12 @@
 import express, { Request, Response } from "express"
 import postsService from "../services/posts.service"
-import Post from "../types/post"
+import { authorize } from "../middlewares/auth"
 
 export const usersRouter = express.Router()
 
 usersRouter.use(express.json())
 
-usersRouter.post("/:userId/posts", createPost)
+usersRouter.post("/:userId/posts", authorize, createPost)
 usersRouter.put("/:userId/posts/:postId", updatePost)
 usersRouter.delete("/:userId/posts/:postId", deletePost)
 
@@ -16,17 +16,19 @@ async function createPost(req: Request, res: Response) {
 		const { title, content } = req.body
 		console.log("body", req.body)
 
+		console.log('token user', req.user)
+
 		const result = await postsService.createPost(title, content, userId)
 
-		if (result?.acknowledged) {
-			const location = `/users/${userId}/posts/${result.insertedId}`
-			res.set("Location", location)
-			return res.status(201).json({ postId: result.insertedId })
+		if (!result) {
+			res.status(500).json({ message: "Failed to create resource" })
 		}
 
-		res.status(500).send("Error inserting new document")
+		const location = `/posts/${result?.insertedId}`
+		res.set("Location", location)
+		return res.status(201).json({ postId: result?.insertedId })
 	} catch (error) {
-		res.status(500).send(error.message)
+		res.status(500).json(error.message)
 	}
 }
 
