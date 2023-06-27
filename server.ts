@@ -4,9 +4,8 @@ import cors from "cors"
 import bodyParser from "body-parser"
 import helmet from "helmet"
 import morgan from "morgan"
-import { connectToDatabase } from "./src/_helpers/db"
-import { postsRouter } from "./src/routes/posts.router"
-import { usersRouter } from "./src/routes/users.router"
+import { connectToDatabase } from "./src/utils/db"
+import postsRouter from "./src/routes/posts.route"
 
 dotenv.config()
 
@@ -17,15 +16,12 @@ async function runStart() {
 	try {
 		await connectToDatabase()
 
-		// Research these middlewares!  
 		app.use(cors())
 		app.use(bodyParser.json())
 		app.use(helmet())
 		app.use(morgan("combined"))
 
-		// Routes:
 		app.use("/posts", postsRouter)
-		app.use("/users", usersRouter)
 
 		app.listen(port, () => {
 			console.log(

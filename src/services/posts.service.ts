@@ -1,5 +1,6 @@
-import { collections } from "../_helpers/db"
+import { collections } from "../utils/db"
 import Post from "../types/post"
+import User from "../types/user"
 import { ObjectId } from "mongodb"
 
 export default {
@@ -17,13 +18,16 @@ async function getPost(id: string) {
 	return (await collections.posts?.findOne(query)) as Post
 }
 
-async function createPost(title: string, content: string, userId: string) {
-	const post = {
+async function createPost(post: Post, user: User) {
+	const { title, content } = post
+	const { id, name } = user
+
+	const newPost = {
 		title,
 		content,
-		userId: new ObjectId(userId),
+		author: name,
+		userId: new ObjectId(id),
 	}
 
-	const result = await collections.posts?.insertOne(post)
-	return result
+	return await collections.posts?.insertOne(newPost)
 }
